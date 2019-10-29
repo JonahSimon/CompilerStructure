@@ -75,11 +75,11 @@ public:
     }
 };
 
-class Value{
+class Variable{
     DataType type;
     string value;
 public:
-    Value(DataType newType = NONE, string newValue = ""){
+    Variable(DataType newType = NONE, string newValue = ""){
         type = newType;
         value = newValue;
     }
@@ -87,7 +87,7 @@ public:
 
 class Interpreter{
     // When interpreting a variable declaration 
-    map<string, Value> variables;
+    map<string, Variable> variables;
 public:
 
     // Functions for statement types (e.g. print, assignment, etc.)
