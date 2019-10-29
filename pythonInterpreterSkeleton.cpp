@@ -25,17 +25,18 @@ public:
 
 class Statement{
     StatementType type;
-    vector<Token> tokens;
+    vector<Token>* tokens;
     int pos;
 public:
-    Statement(StatementType newType = INVALID, vector<Token> newTokens = new vector<Token>, ){
+    Statement(StatementType newType = INVALID){
         type = newType;
-        value = newTokens;
+        tokens = new vector<Token>;
         pos = 0;
     }
 
     StatementType getType(){ return type; }
     void setPos(int newPos){ pos = newPos; }
+    void addToken(Token newToken){ tokens->push_back(newToken); }
 
     Token peek(){
 
