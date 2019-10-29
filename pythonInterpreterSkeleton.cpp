@@ -87,6 +87,7 @@ public:
 };
 
 class Interpreter{
+    // string = identifier, Variable = value
     map<string, Variable> variables;
 public:
 
