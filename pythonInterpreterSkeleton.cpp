@@ -86,7 +86,6 @@ public:
 };
 
 class Interpreter{
-    // When interpreting a variable declaration 
     map<string, Variable> variables;
 public:
 
