@@ -19,6 +19,7 @@ public:
         type = newType;
         value = newValue;
     }
+    StatementType getType(){ return type; }
 };
 
 class Token{
@@ -106,9 +107,10 @@ int main(){
 
     // read in input
 
-    for( string s : input){
+    for( string s : input ){
         Statement next = parser.parse(s);
         interpreter.interpret(next);
+        if(next.getType() == INVALID) break;
     }
 
     return 0;
