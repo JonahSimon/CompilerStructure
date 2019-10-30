@@ -160,8 +160,11 @@ int main(){
 
     // Read input
 
-    for(int i=0; i < input.size() && !error; i++)
+    for(int i=0; i < input.size() && !error; i++){
         program.push_back(parser.parse(input[i]));
+	if(program.front().getType() == INVALID)
+	    error = true;
+    }
 
     if(!error)
         interpreter.interpret(program);
