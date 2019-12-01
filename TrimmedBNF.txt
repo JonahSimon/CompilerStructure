@@ -1,0 +1,65 @@
+keyword ::=    
+           "print" | "Type" |
+
+identifier ::= 
+             (letter|"_") (letter | digit | "_")*
+  
+    (where the matched string is not a keyword)
+
+letter ::= 
+             lowercase | uppercase //// (a-z | A-Z thats all these are)
+  
+digit ::= 
+             "0"|"1"|...|"9"
+
+
+**Grammar**
+
+atom ::= 
+             identifier | literal 
+
+literal ::= 
+             stringliteral | integer | longinteger
+                | floatnumber | imagnumber
+
+stringliteral ::=
+             stringliteralpiece
+             | stringliteral stringliteralpiece
+ 
+string_conversion ::= 
+             "`" expression_list "`"
+ 
+keyword_item ::= 
+             identifier "=" expression
+
+expression ::= 
+             conditional_expression
+
+expression_list ::= 
+             expression ( "," expression )* [","]
+   
+conditional_expression ::= 
+             or_test ["if" or_test "else" expression]
+  
+simple_stmt ::= assignment_stmt
+                | print_stmt
+
+expression_stmt ::= 
+             expression_list
+
+assignment_stmt ::= 
+             (target_list "=")+
+              (expression_list)
+  
+print_stmt ::= 
+             "print" (  [expression ("," expression)* [","]]
+                      | ">>" expression [("," expression)+ [","]] )
+    
+name ::= 
+             identifier
+     
+parameter ::= 
+             identifier | "(" sublist ")"
+  
+funcname ::= 
+             identifier
