@@ -9,7 +9,7 @@
 using namespace std;
 
 typedef enum { /*Types of statement*/ INVALID } StatementType;
-typedef enum { /*Types of terminal*/ IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
+typedef enum { /*Types of terminal*/RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
 typedef enum { /*valid dataTypes*/ NONE } DataType; 
 
 class Token{
@@ -25,6 +25,7 @@ public:
 };
 
 class Statement{
+    string line;
     StatementType type;
     vector<Token>* tokens;
     int pos;
@@ -40,6 +41,35 @@ public:
     void addToken(Token newToken){ tokens->push_back(newToken); }
 
     Token peek(){
+        if (pos == line.length()) return Token(EOL);
+
+        smatch match;
+        string remaining = line.substr(pos);
+
+        while(regex_match(remaining, match, regex(" .*"))){
+        pos++;
+        remaining = line.substr(pos);
+        }
+
+        if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
+            return Token(RELATIONAL_OP, match[1]);
+
+        if(regex_match(remaining, match, regex("(\\+|-|or).*")))
+            return Token(ADDITIVE_OP, match[1]);
+
+        if(regex_match(remaining, match, regex("([0-9]+\\.[0-9]+([eE][0-9]+)?).*")))
+            return Token(UNSIGNED_REAL, match[1]);
+
+        if(regex_match(remaining, match, regex("([0-9]+).*")))
+            return Token(UNSIGNED_INT, match[1]);
+
+        if(regex_match(remaining, match, regex("(\\().*")))
+            return Token(OPEN_PAREN, match[1]);
+
+        if(regex_match(remaining, match, regex("(\\)).*")))
+            return Token(CLOSE_PAREN, match[1]);
+
+        return Token(BAD_TOKEN);
 
         // Return next token without iterating pos
 
