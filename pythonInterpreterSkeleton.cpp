@@ -8,37 +8,44 @@
 
 using namespace std;
 
-typedef enum { /*Types of statement*/ INVALID } StatementType;
-typedef enum { /*Types of terminal*/RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
+typedef enum { /*Types of statement*/ ASSIGN, PRINT, INVALID } StatementType;
+typedef enum { /*Types of terminal*/KEYWORD, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
 typedef enum { /*valid dataTypes*/ NONE } DataType; 
 
 class Token{
-    TokenType type;
-    string value;
+	
 public:
+
+	TokenType type;
+	string value;
+	
     Token(TokenType newType = EOL, string newValue = ""){
         type = newType;
         value = newValue;
     }
-    TokenType getType(){ return type; }
-    string getValue(){ return value; }
+    
 };
 
 class Statement{
+	StatementType Statetype;
     string line;
-    StatementType type;
     vector<Token>* tokens;
-    int pos;
+    unsigned int pos;
+    
 public:
-    Statement(StatementType newType = INVALID){
-        type = newType;
-        tokens = new vector<Token>;
-        pos = 0;
-    }
-
-    StatementType getType(){ return type; }
+    
+    void start(string newline){
+		
+		Statetype = INVALID;
+		line = newline;
+		tokens = new vector<Token>;
+		pos = 0;
+	}
+	
+	StatementType getType(){ return Statetype; }
     void setPos(int newPos){ pos = newPos; }
     void addToken(Token newToken){ tokens->push_back(newToken); }
+    void setType(StatementType type) {Statetype = type;}
 
     Token peek(){
         if (pos == line.length()) return Token(EOL);
@@ -53,7 +60,11 @@ public:
 
         if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
             return Token(RELATIONAL_OP, match[1]);
-
+            
+		if(regex_match(remaining, match, regex("(print().*"))){
+			setType(PRINT);
+            return Token(KEYWORD, match[1]);}
+            
         if(regex_match(remaining, match, regex("(\\+|-|or).*")))
             return Token(ADDITIVE_OP, match[1]);
 
@@ -70,60 +81,32 @@ public:
             return Token(CLOSE_PAREN, match[1]);
 
         return Token(BAD_TOKEN);
-
-        // Return next token without iterating pos
-
-        return Token();
     }
 
+	// Should be working now
     Token getToken(){
-
-        // Return next token and iterate pos
-
-        return Token();
+		Token t;
+		t = peek();
+		pos += t.value.size();
+		addToken(t);
+        return t;
     }
-
-    Token lastToken(){
-
-        // Decrement pos then return current token
-
-        return Token();
-    }
-};
-
-class Tokenizer{
-    string line;
-    int pos;
-    public:
-
-    int getPosition(){ return pos; }
-
-    void start(string newLine){
-		line = newLine;
-		pos = 0;
-	}
-
-    Token peek(){
-
-        // Return next token without iterating pos
-
-        return Token();
-    }
-
-    Token getToken(){
-
-        // Return next token and iterate pos
-
-        return Token();
+	
+	// Should also be working
+    Token lastToken(Token t){
+		pos -= t.value.size();
+		t = peek();
+        return t;
     }
 };
 
 class Parser{
-    Tokenizer tokenizer;
+    Statement statement;
     string error;
     Token token;
     int parenDepth;
 public:
+
 
     // Functions for terminals
     //
@@ -190,10 +173,10 @@ int main(){
 
     // Read input
 
-    for(int i=0; i < input.size() && !error; i++){
+    for(unsigned int i=0; i < input.size() && !error; i++){
         program.push_back(parser.parse(input[i]));
-	if(program.front().getType() == INVALID)
-	    error = true;
+	
+		if(program.front().getType() == INVALID) error = true;
     }
 
     if(!error)
