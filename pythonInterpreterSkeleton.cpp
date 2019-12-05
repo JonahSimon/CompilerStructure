@@ -33,6 +33,8 @@ class Statement{
     unsigned int pos;
     
 public:
+
+	Statement (StatementType state = INVALID){Statetype = state;}
     
     void start(string newline){
 		
@@ -109,6 +111,38 @@ public:
 
 
     // Functions for terminals
+    
+    void keyword (){
+		
+		if (token.type == KEYWORD) {
+			token = statement.getToken();
+			}
+		
+	}
+		
+	void identifier (){
+		
+		if (token.type == IDENTIFIER) {
+			token = statement.getToken();
+			}
+		
+	}
+		
+	void open_paren (){
+		
+		if (token.type == OPEN_PAREN) {
+			token = statement.getToken();
+			}
+		
+	}
+	
+	void close_paren (){
+		
+		if (token.type == CLOSE_PAREN) {
+			token = statement.getToken();
+			}
+		
+	}
     //
     // The Parser doesn't care if a Variable has been declared,
     // it only cares if a valid IDENTIFIER is used in the right place
@@ -117,6 +151,8 @@ public:
     // the Interpreter should handle it a runtime error
 
     Statement parse(string input){
+		statement.getToken();
+		//Call something  or check what it is and then call something
 
         // Re-initialize the parser
         // and run input through it
