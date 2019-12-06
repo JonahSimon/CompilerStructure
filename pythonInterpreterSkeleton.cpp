@@ -9,7 +9,7 @@
 using namespace std;
 
 typedef enum { /*Types of statement*/ ASSIGN, PRINT, INVALID } StatementType;
-typedef enum { /*Types of terminal*/KEYWORD, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
+typedef enum { /*Types of terminal*/KEYWORD, EQUALS, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
 typedef enum { /*valid dataTypes*/ NONE } DataType; 
 
 class Token{
@@ -29,12 +29,31 @@ public:
 class Statement{
 	StatementType Statetype;
     string line;
+    map<string,string> Values;
     vector<Token>* tokens;
     unsigned int pos;
     
 public:
 
 	Statement (StatementType state = INVALID){Statetype = state;}
+
+    // TODO ADD THIS FUNCTION
+    void nextLine(string newline){
+
+
+    }
+
+    auto getValue(string key){
+
+        return Values.find(key);
+
+    }
+
+    void addValue(string key,string value){
+
+        Values.insert({key,value});
+
+    }
     
     void start(string newline){
 		
@@ -51,7 +70,7 @@ public:
 
     Token peek(){
         if (pos == line.length()) return Token(EOL);
-
+        cout << "got here sucker" << endl;
         smatch match;
         string remaining = line.substr(pos);
 
@@ -63,9 +82,14 @@ public:
         if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
             return Token(RELATIONAL_OP, match[1]);
             
-		if(regex_match(remaining, match, regex("(print().*"))){
+		if(regex_match(remaining, match, regex("(print).*"))){
 			setType(PRINT);
+            cout << match[1] << endl;
             return Token(KEYWORD, match[1]);}
+
+        if(regex_match(remaining, match, regex("(=).*"))){
+			setType(ASSIGN);
+            return Token(EQUALS, match[1]);}
             
         if(regex_match(remaining, match, regex("(\\+|-|or).*")))
             return Token(ADDITIVE_OP, match[1]);
@@ -82,7 +106,16 @@ public:
         if(regex_match(remaining, match, regex("(\\)).*")))
             return Token(CLOSE_PAREN, match[1]);
 
+        if(regex_match(remaining, match, regex("(([a-z]|[A-Z])+).*")))
+            return Token(IDENTIFIER, match[1]);
+
         return Token(BAD_TOKEN);
+    }
+
+    Token peekyboi(){
+        Token t;
+        t = peek();
+        return t;
     }
 
 	// Should be working now
@@ -113,34 +146,40 @@ public:
     // Functions for terminals
     
     void keyword (){
-		
-		if (token.type == KEYWORD) {
-			token = statement.getToken();
-			}
-		
+            Token t;
+            t = statement.peekyboi();
+            if (t.type == OPEN_PAREN){
+                open_paren();
+            }
+			
 	}
 		
 	void identifier (){
-		
-		if (token.type == IDENTIFIER) {
+        
 			token = statement.getToken();
-			}
-		
+            Token t;
+            t = statement.peekyboi();
+            if (t.type == CLOSE_PAREN){
+                close_paren();
+            }		
 	}
 		
 	void open_paren (){
-		
-		if (token.type == OPEN_PAREN) {
-			token = statement.getToken();
-			}
-		
+        token = statement.getToken();
+		Token t;
+        t = statement.peekyboi();
+        if (t.type == IDENTIFIER){
+            identifier();
+        }
+				
 	}
 	
 	void close_paren (){
-		
-		if (token.type == CLOSE_PAREN) {
+		// TO DO FINISH THIS FUNCTION 
+            statement.addValue("ourstring","Hello");
 			token = statement.getToken();
-			}
+            cout << statement.getValue("ourstring")->second << endl; 
+
 		
 	}
     //
@@ -151,7 +190,13 @@ public:
     // the Interpreter should handle it a runtime error
 
     Statement parse(string input){
-		statement.getToken();
+        Token t;
+        statement.start(input);
+		t = statement.getToken();
+
+        if (t.type == KEYWORD){
+            keyword();
+        }
 		//Call something  or check what it is and then call something
 
         // Re-initialize the parser
@@ -207,8 +252,9 @@ int main(){
     vector<Statement> program;
     bool error = false;
 
+    parser.parse("print(ourstring)");
     // Read input
-
+    /*
     for(unsigned int i=0; i < input.size() && !error; i++){
         program.push_back(parser.parse(input[i]));
 	
@@ -217,6 +263,6 @@ int main(){
 
     if(!error)
         interpreter.interpret(program);
-
+    */
     return 0;
 }
