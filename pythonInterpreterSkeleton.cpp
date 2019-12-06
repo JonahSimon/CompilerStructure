@@ -63,7 +63,7 @@ public:
         if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
             return Token(RELATIONAL_OP, match[1]);
             
-		if(regex_match(remaining, match, regex("(print().*"))){
+		if(regex_match(remaining, match, regex("(print).*"))){
 			setType(PRINT);
             return Token(KEYWORD, match[1]);}
             
@@ -81,6 +81,8 @@ public:
 
         if(regex_match(remaining, match, regex("(\\)).*")))
             return Token(CLOSE_PAREN, match[1]);
+        if(regex_match(remaining, match, regex("([a-z]|[A-Z])+")))
+            return Token(IDENTIFIER, match[1]);
 
         return Token(BAD_TOKEN);
     }
@@ -109,14 +111,39 @@ class Parser{
     int parenDepth;
 public:
 
-
     // Functions for terminals
-    
+    void unaryOp(){
+        If(error != ""){
+
+        }
+        else{
+        }
+    }
+
+    void additiveOp(){
+        If(error != ""){
+
+        }
+        else{
+        }
+    }
+
+    void relationalOp(){
+        If(){
+
+        }
+        else{
+        }
+    }
+
     void keyword (){
 		
 		if (token.type == KEYWORD) {
 			token = statement.getToken();
 			}
+        else{
+            cout << "Error: Expected a keyword" << endl;
+        }
 		
 	}
 		
@@ -124,25 +151,50 @@ public:
 		
 		if (token.type == IDENTIFIER) {
 			token = statement.getToken();
-			}
-		
+		}
+		else{
+            cout << "Error: Expected an Identifier" << endl;
+        }
 	}
 		
 	void open_paren (){
 		
 		if (token.type == OPEN_PAREN) {
 			token = statement.getToken();
-			}
-		
+		}
+        else{
+            cout << "Error: Expected an open parentheses" << endl;
+        }
+	
 	}
 	
 	void close_paren (){
 		
 		if (token.type == CLOSE_PAREN) {
 			token = statement.getToken();
-			}
-		
+		}
+        else{
+            cout << "Error: Expected a closed parentheses" << endl;
+        }	
 	}
+
+    void unsigned_real(){
+        If(error != ""){
+
+        }
+        else{
+        }
+
+    }
+
+    void unsigned_int(){
+
+        If(error != ""){
+
+        }
+        else{
+        }
+    }
     //
     // The Parser doesn't care if a Variable has been declared,
     // it only cares if a valid IDENTIFIER is used in the right place
