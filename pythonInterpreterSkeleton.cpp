@@ -37,24 +37,30 @@ public:
 
 	Statement (StatementType state = INVALID){Statetype = state;}
 
-    // TODO ADD THIS FUNCTION
+    // Changes what the line we are working on is and resets pos to 0
     void nextLine(string newline){
 
-
+        Statetype = INVALID;
+        line = newline;
+        pos = 0;
+        
     }
 
+    // Get values from the map 
     auto getValue(string key){
 
         return Values.find(key);
 
     }
 
+    // Add values to map
     void addValue(string key,string value){
 
         Values.insert({key,value});
 
     }
     
+    // initialize first statement line
     void start(string newline){
 		
 		Statetype = INVALID;
@@ -112,13 +118,14 @@ public:
         return Token(BAD_TOKEN);
     }
 
+    // peek ahead no increment no added token
     Token peekyboi(){
         Token t;
         t = peek();
         return t;
     }
 
-	// Should be working now
+	// Get next token and increment pos while adding token to vector
     Token getToken(){
 		Token t;
 		t = peek();
@@ -127,7 +134,7 @@ public:
         return t;
     }
 	
-	// Should also be working
+	// find the previous token. HAVE NOT TESTED THIS YET
     Token lastToken(Token t){
 		pos -= t.value.size();
 		t = peek();
@@ -144,6 +151,30 @@ public:
 
 
     // Functions for terminals
+    
+    void unaryOp(){
+        if(error != ""){
+
+        }
+        else{
+        }
+    }
+
+    void additiveOp(){
+        if(error != ""){
+
+        }
+        else{
+        }
+    }
+
+    void relationalOp(){
+        if(){
+
+        }
+        else{
+        }
+    }
     
     void keyword (){
             Token t;
@@ -197,6 +228,10 @@ public:
         if (t.type == KEYWORD){
             keyword();
         }
+
+        if (t.type == IDENTIFIER){
+            identifier();
+        }
 		//Call something  or check what it is and then call something
 
         // Re-initialize the parser
@@ -231,18 +266,18 @@ class Interpreter{
     int line;
     // Used to keep track of loop/conditional level
     int tabDepth;
-public:
+    public:
 
     // Functions for statement types (e.g. print, assignment, etc.)
 
-    void interpret(vector<Statement> input){
+        void interpret(vector<Statement> input){
 
         // Run input through the appropriate function
         // Do nothing if input is INVALID
         //
         // Output an error and stop running if there's a problem
 
-    } 
+        } 
 };
 
 int main(){
