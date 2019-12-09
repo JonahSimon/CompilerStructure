@@ -76,7 +76,6 @@ public:
 
     Token peek(){
         if (pos == line.length()) return Token(EOL);
-        cout << "got here sucker" << endl;
         smatch match;
         string remaining = line.substr(pos);
 
@@ -85,12 +84,11 @@ public:
         remaining = line.substr(pos);
         }
 
-        if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
-            return Token(RELATIONAL_OP, match[1]);
+        /*if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
+            return Token(RELATIONAL_OP, match[1]);*/
             
 		if(regex_match(remaining, match, regex("(print).*"))){
 			setType(PRINT);
-            cout << match[1] << endl;
             return Token(KEYWORD, match[1]);}
 
         if(regex_match(remaining, match, regex("(=).*"))){
@@ -145,7 +143,7 @@ public:
 class Parser{
     Statement statement;
     string error;
-    Token token;
+    Token token, tempToken;
     int parenDepth;
 public:
 
@@ -168,18 +166,45 @@ public:
         }
     }
 
+    /*
     void relationalOp(){
         if(){
 
         }
         else{
         }
+    }*/
+
+    void equals(){
+        
+        token = statement.getToken();
+        Token t;
+        t = statement.peekyboi();
+
+        if (token.type == IDENTIFIER){
+            statement.addValue(tempToken.value,token.value);
+        }
+
+        if (t.type == EOL){
+            statement.nextLine("print(ourstring)");
+            token  = statement.getToken();
+            
+            if (token.type == KEYWORD){
+                keyword();
+            }
+            
+            if (token.type == IDENTIFIER){
+                identifier();
+            }
+        }
+
+
+
     }
     
     void keyword (){
-            Token t;
-            t = statement.peekyboi();
-            if (t.type == OPEN_PAREN){
+            token = statement.getToken();
+            if (token.type == OPEN_PAREN){
                 open_paren();
             }
 			
@@ -188,9 +213,12 @@ public:
 	void identifier (){
         
 			token = statement.getToken();
-            Token t;
-            t = statement.peekyboi();
-            if (t.type == CLOSE_PAREN){
+
+            if (token.type == EQUALS){
+                equals();
+            }
+
+            else if (token.type == CLOSE_PAREN){
                 close_paren();
             }		
 	}
@@ -200,16 +228,17 @@ public:
 		Token t;
         t = statement.peekyboi();
         if (t.type == IDENTIFIER){
+            tempToken = t;
             identifier();
         }
 				
 	}
 	
 	void close_paren (){
-		// TO DO FINISH THIS FUNCTION 
-            statement.addValue("ourstring","Hello");
-			token = statement.getToken();
-            cout << statement.getValue("ourstring")->second << endl; 
+		// TO DO FINISH THIS FUNCTION
+            if (statement.getType() == PRINT){
+            cout << statement.getValue(tempToken.value)->second << endl;
+            }
 
 		
 	}
@@ -221,15 +250,15 @@ public:
     // the Interpreter should handle it a runtime error
 
     Statement parse(string input){
-        Token t;
         statement.start(input);
-		t = statement.getToken();
+		token = statement.getToken();
 
-        if (t.type == KEYWORD){
+        if (token.type == KEYWORD){
             keyword();
         }
 
-        if (t.type == IDENTIFIER){
+        if (token.type == IDENTIFIER){
+            tempToken = token;
             identifier();
         }
 		//Call something  or check what it is and then call something
@@ -287,7 +316,7 @@ int main(){
     vector<Statement> program;
     bool error = false;
 
-    parser.parse("print(ourstring)");
+    parser.parse("ourstring = Hello");
     // Read input
     /*
     for(unsigned int i=0; i < input.size() && !error; i++){
