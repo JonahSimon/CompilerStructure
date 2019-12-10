@@ -9,7 +9,7 @@
 using namespace std;
 
 typedef enum { /*Types of statement*/ ASSIGN, PRINT, INVALID } StatementType;
-typedef enum { /*Types of terminal*/KEYWORD, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
+typedef enum { /*Types of terminal*/KEYWORD, EQUALS, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
 typedef enum { /*valid dataTypes*/ NONE } DataType; 
 
 class Token{
@@ -29,13 +29,38 @@ public:
 class Statement{
 	StatementType Statetype;
     string line;
+    map<string,string> Values;
     vector<Token>* tokens;
     unsigned int pos;
     
 public:
 
 	Statement (StatementType state = INVALID){Statetype = state;}
+
+    // Changes what the line we are working on is and resets pos to 0
+    void nextLine(string newline){
+
+        Statetype = INVALID;
+        line = newline;
+        pos = 0;
+        
+    }
+
+    // Get values from the map 
+    auto getValue(string key){
+
+        return Values.find(key);
+
+    }
+
+    // Add values to map
+    void addValue(string key,string value){
+
+        Values.insert({key,value});
+
+    }
     
+    // initialize first statement line
     void start(string newline){
 		
 		Statetype = INVALID;
@@ -51,7 +76,6 @@ public:
 
     Token peek(){
         if (pos == line.length()) return Token(EOL);
-
         smatch match;
         string remaining = line.substr(pos);
 
@@ -60,12 +84,16 @@ public:
         remaining = line.substr(pos);
         }
 
-        if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
-            return Token(RELATIONAL_OP, match[1]);
+        /*if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
+            return Token(RELATIONAL_OP, match[1]);*/
             
 		if(regex_match(remaining, match, regex("(print).*"))){
 			setType(PRINT);
             return Token(KEYWORD, match[1]);}
+
+        if(regex_match(remaining, match, regex("(=).*"))){
+			setType(ASSIGN);
+            return Token(EQUALS, match[1]);}
             
         if(regex_match(remaining, match, regex("(\\+|-|or).*")))
             return Token(ADDITIVE_OP, match[1]);
@@ -84,10 +112,20 @@ public:
         if(regex_match(remaining, match, regex("([a-z]|[A-Z])+")))
             return Token(IDENTIFIER, match[1]);
 
+        if(regex_match(remaining, match, regex("(([a-z]|[A-Z])+).*")))
+            return Token(IDENTIFIER, match[1]);
+
         return Token(BAD_TOKEN);
     }
 
-	// Should be working now
+    // peek ahead no increment no added token
+    Token peekyboi(){
+        Token t;
+        t = peek();
+        return t;
+    }
+
+	// Get next token and increment pos while adding token to vector
     Token getToken(){
 		Token t;
 		t = peek();
@@ -96,7 +134,7 @@ public:
         return t;
     }
 	
-	// Should also be working
+	// find the previous token. HAVE NOT TESTED THIS YET
     Token lastToken(Token t){
 		pos -= t.value.size();
 		t = peek();
@@ -107,75 +145,98 @@ public:
 class Parser{
     Statement statement;
     string error;
-    Token token;
+    Token token, tempToken;
     int parenDepth;
 public:
 
     // Functions for terminals
-    void unaryOp(){
-        If(error != ""){
-
         }
         else{
         }
-    }
 
     void additiveOp(){
-        If(error != ""){
+        if(error != ""){
 
         }
         else{
         }
     }
 
+    /*
     void relationalOp(){
-        If(){
+        if(){
 
         }
         else{
         }
+    }*/
+
+    void equals(){
+        
+        token = statement.getToken();
+        Token t;
+        t = statement.peekyboi();
+
+        if (token.type == IDENTIFIER){
+            statement.addValue(tempToken.value,token.value);
+        }
+
+        if (t.type == EOL){
+            statement.nextLine("print(ourstring)");
+            token  = statement.getToken();
+            
+            if (token.type == KEYWORD){
+                keyword();
+            }
+            
+            if (token.type == IDENTIFIER){
+                identifier();
+            }
+        }
+
+
+
     }
-
+    
     void keyword (){
-		
-		if (token.type == KEYWORD) {
-			token = statement.getToken();
-			}
-        else{
-            cout << "Error: Expected a keyword" << endl;
-        }
-		
+            token = statement.getToken();
+            if (token.type == OPEN_PAREN){
+                open_paren();
+            }
+			
 	}
 		
 	void identifier (){
-		
-		if (token.type == IDENTIFIER) {
+        
 			token = statement.getToken();
-		}
-		else{
-            cout << "Error: Expected an Identifier" << endl;
-        }
+
+            if (token.type == EQUALS){
+                equals();
+            }
+
+            else if (token.type == CLOSE_PAREN){
+                close_paren();
+            }		
 	}
 		
 	void open_paren (){
-		
-		if (token.type == OPEN_PAREN) {
-			token = statement.getToken();
-		}
-        else{
-            cout << "Error: Expected an open parentheses" << endl;
+        token = statement.getToken();
+		Token t;
+        t = statement.peekyboi();
+        if (t.type == IDENTIFIER){
+            tempToken = t;
+            identifier();
         }
-	
+				
 	}
 	
 	void close_paren (){
+		// TO DO FINISH THIS FUNCTION
+            if (statement.getType() == PRINT){
+            cout << statement.getValue(tempToken.value)->second << endl;
+            }
+
 		
-		if (token.type == CLOSE_PAREN) {
-			token = statement.getToken();
-		}
-        else{
-            cout << "Error: Expected a closed parentheses" << endl;
-        }	
 	}
 
     void unsigned_real(){
@@ -203,7 +264,17 @@ public:
     // the Interpreter should handle it a runtime error
 
     Statement parse(string input){
-		statement.getToken();
+        statement.start(input);
+		token = statement.getToken();
+
+        if (token.type == KEYWORD){
+            keyword();
+        }
+
+        if (token.type == IDENTIFIER){
+            tempToken = token;
+            identifier();
+        }
 		//Call something  or check what it is and then call something
 
         // Re-initialize the parser
@@ -238,18 +309,18 @@ class Interpreter{
     int line;
     // Used to keep track of loop/conditional level
     int tabDepth;
-public:
+    public:
 
     // Functions for statement types (e.g. print, assignment, etc.)
 
-    void interpret(vector<Statement> input){
+        void interpret(vector<Statement> input){
 
         // Run input through the appropriate function
         // Do nothing if input is INVALID
         //
         // Output an error and stop running if there's a problem
 
-    } 
+        } 
 };
 
 int main(){
@@ -259,8 +330,9 @@ int main(){
     vector<Statement> program;
     bool error = false;
 
+    parser.parse("ourstring = Hello");
     // Read input
-
+    /*
     for(unsigned int i=0; i < input.size() && !error; i++){
         program.push_back(parser.parse(input[i]));
 	
@@ -269,6 +341,6 @@ int main(){
 
     if(!error)
         interpreter.interpret(program);
-
+    */
     return 0;
 }
