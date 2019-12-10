@@ -34,7 +34,6 @@ class Statement{
     unsigned int pos;
     
 public:
-
 	Statement (StatementType state = INVALID){Statetype = state;}
 
     // Changes what the line we are working on is and resets pos to 0
@@ -109,8 +108,6 @@ public:
 
         if(regex_match(remaining, match, regex("(\\)).*")))
             return Token(CLOSE_PAREN, match[1]);
-        if(regex_match(remaining, match, regex("([a-z]|[A-Z])+")))
-            return Token(IDENTIFIER, match[1]);
 
         if(regex_match(remaining, match, regex("(([a-z]|[A-Z])+).*")))
             return Token(IDENTIFIER, match[1]);
@@ -149,10 +146,16 @@ class Parser{
     int parenDepth;
 public:
 
+
     // Functions for terminals
+    
+    void unaryOp(){
+        if(error != ""){
+
         }
         else{
         }
+    }
 
     void additiveOp(){
         if(error != ""){
@@ -238,24 +241,6 @@ public:
 
 		
 	}
-
-    void unsigned_real(){
-        If(error != ""){
-
-        }
-        else{
-        }
-
-    }
-
-    void unsigned_int(){
-
-        If(error != ""){
-
-        }
-        else{
-        }
-    }
     //
     // The Parser doesn't care if a Variable has been declared,
     // it only cares if a valid IDENTIFIER is used in the right place
