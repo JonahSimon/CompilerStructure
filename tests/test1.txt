@@ -1,7 +1,1 @@
-x=(1+2)*3
-print(Type(x))
-print(x)
-ourstr="Hello"
-print(Type(ourstr))
-print(ourstr)
-print("x is equal to {1}{0}" .format(x,y))
+print("hello world")

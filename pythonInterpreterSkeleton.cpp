@@ -5,11 +5,12 @@
 #include<regex>
 #include<vector>
 #include<map>
+#include<fstream>
 
 using namespace std;
 
 typedef enum { /*Types of statement*/ ASSIGN, PRINT, INVALID } StatementType;
-typedef enum { /*Types of terminal*/KEYWORD, EQUALS, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
+typedef enum { /*Types of terminal*/KEYWORD, EQUALS, RELATIONAL_OP, ADDITIVE_OP, UNSIGNED_REAL, UNSIGNED_INT, QUOTE, OPEN_PAREN, CLOSE_PAREN, IDENTIFIER, EOL, BAD_TOKEN } TokenType; 
 typedef enum { /*valid dataTypes*/ NONE } DataType; 
 
 class Token{
@@ -33,7 +34,7 @@ class Statement{
     vector<Token>* tokens;
     unsigned int pos;
     
-public:
+public: 
 	Statement (StatementType state = INVALID){Statetype = state;}
 
     // Changes what the line we are working on is and resets pos to 0
@@ -86,7 +87,7 @@ public:
         /*if(regex_match(remaining, match, regex("(<|<=|=|=>|>|<>).*")))
             return Token(RELATIONAL_OP, match[1]);*/
             
-		if(regex_match(remaining, match, regex("(print).*"))){
+		if(regex_match(remaining, match, regex("(print|and|or|not|elif|else|if|while|break).*"))){
 			setType(PRINT);
             return Token(KEYWORD, match[1]);}
 
@@ -102,6 +103,9 @@ public:
 
         if(regex_match(remaining, match, regex("([0-9]+).*")))
             return Token(UNSIGNED_INT, match[1]);
+
+        if(regex_match(remaining, match, regex("(\").*")))
+            return Token(QUOTE, match[1]);
 
         if(regex_match(remaining, match, regex("(\\().*")))
             return Token(OPEN_PAREN, match[1]);
@@ -202,10 +206,13 @@ public:
     }
     
     void keyword (){
+        if(token.value == "print"){
             token = statement.getToken();
             if (token.type == OPEN_PAREN){
                 open_paren();
             }
+            else error = "expected open paren";
+        }
 			
 	}
 		
@@ -221,15 +228,24 @@ public:
                 close_paren();
             }		
 	}
+
+    void string_literal(){
+        token = statement.getToken();
+        
+    }
 		
 	void open_paren (){
         token = statement.getToken();
 		Token t;
         t = statement.peekyboi();
+        if(token.type == QUOTE){
+
+        }
         if (t.type == IDENTIFIER){
             tempToken = t;
             identifier();
         }
+        
 				
 	}
 	
@@ -308,6 +324,33 @@ class Interpreter{
         } 
 };
 
+vector<string> testExpressions;
+void loadTests(){
+    string test;
+    string tests[13] = 
+    {
+        "tests/test1.txt",
+        "tests/test2.txt",
+        "tests/test3.txt",
+        "tests/test4.txt",
+        "tests/test5.txt",
+        "tests/test6.txt",
+        "tests/test7.txt",
+        "tests/test8.txt",
+        "tests/test9.txt",
+        "tests/test10.txt",
+        "tests/test11.txt",
+        "tests/test12.txt"
+    };
+    ifstream inf;
+    for(int i = 0; i < 12; i++){
+        inf.open(tests[i]);
+        getline(inf,test);
+        testExpressions.push_back(test);
+        inf.close();
+    }
+}
+
 int main(){
     Parser parser;
     Interpreter interpreter;
@@ -315,7 +358,12 @@ int main(){
     vector<Statement> program;
     bool error = false;
 
-    parser.parse("ourstring = Hello");
+    loadTests();
+    for(int i = 0; i < testExpressions.size(); i++){
+        cout << "test " << i + 1 << ": " << testExpressions[i] << endl;
+        parser.parse(testExpressions[i]);
+    }
+    //parser.parse("ourstring = Hello");
     // Read input
     /*
     for(unsigned int i=0; i < input.size() && !error; i++){
