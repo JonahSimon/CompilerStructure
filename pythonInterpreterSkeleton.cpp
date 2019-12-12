@@ -155,7 +155,7 @@ public:
         }
 
         if (t.type == EOL ){
-            statement.nextLine("print(x)");
+            statement.nextLine("print(ourstr)");
             token  = statement.getToken();
             
             if (token.type == KEYWORD){
@@ -231,7 +231,7 @@ int main(){
     vector<string> input;
     vector<Statement> program;
     bool error = false;
-    parser.parse("x = 5+5");
+    parser.parse("ourstr = hello");
     // Read input
     /*
     for(unsigned int i=0; i < input.size() && !error; i++){
