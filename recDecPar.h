@@ -28,23 +28,26 @@ void parse2();
 void GetToken2();
 void doOps();
 
-void parseNumber(string line){
+int parseNumber(string line){
 	line2 = line;
 	index3 = 0;
 	Error = false;
 	parse2();
+	numbs.shrink_to_fit();
 	if (numbs.size() <= 2){
 			doOps();
 		}
 	int ans = numbs.back();
-	cout << endl << ans << endl;
+	//cout  << endl << ans << endl;
+	int result = ans;
+	return ans;
 
 }
 
 void doOps(){
-		int first = numbs.back();
-			numbs.pop_back();
 		int second = numbs.back();
+			numbs.pop_back();
+		int first = numbs.back();
 			numbs.pop_back();
 		char op = ops.back();
 			ops.pop_back();
@@ -53,36 +56,36 @@ void doOps(){
 			numbs.push_back(first+second);
 		}
 
-		if(op == '-'){
+		else if(op == '-'){
 			numbs.push_back(first*second);
 		}
 
-		if(op == '/'){
-			numbs.push_back(second/first);
+		else if(op == '/'){
+			numbs.push_back(first/second);
 		}
 
-		if(op == '-'){
-			numbs.push_back(second-first);
+		else if(op == '-'){
+			numbs.push_back(first-second);
 		}
 
 }
 
 /*int main2(){
 	line2 = "(2+3)*6";
-	cout << line2.length();
+	// << line2.length();
 	parse2();
 	if(Error == false)
-		cout << endl << "The parse was successful.";
+		// << endl << "The parse was successful.";
 	}*/
 	
 void GetToken2(){
 	token = line2[index3];
-	cout << endl << "<gettoken> " << token << " ";
+	// << endl << "<gettoken> " << token << " ";
 	index3++;
 }
 
 void expression2(){
-	cout << "<exp> ";
+	// << "<exp> ";
 	term2();
 	while (token == '+'){
 		ops.push_back(token);
@@ -92,7 +95,7 @@ void expression2(){
 }
 
 void term2(){
-	cout << "<term> ";
+	// << "<term> ";
 	factor2();
 	while(token == '*'){
 		ops.push_back(token);
@@ -102,42 +105,45 @@ void term2(){
 }
 	
 void factor2(){
-	cout << "<factor> ";
+	// << "<factor> ";
 		if (token == '('){
 			GetToken2();
 			expression2();
 			if (token == ')')
 				GetToken2();
 			else {
-				cout << endl <<"Error expected )";
+				// << endl <<"Etokenrror expected )";
 				Error = true;
 			}
 		}
-		else 
+		else{ 
 			number2();
+		}
 }
 	
 void number2(){
-		cout << "<number> ";
+		// << "<number> ";
 		digit2();
 		while(token == ('1'||'2'||'3'||'4'||'5'||'6'||'7'||'8'||'9'))
 			digit2();
 }
 	
 void digit2(){
-		cout << "<digit>";
+		// << "<digit>";
+		char c = token;
+		int numb = stoi(&c);
+		numbs.push_back(numb);
 	if (isdigit(line2[index3 - 1])){
-		numbs.push_back((int)token);
 		GetToken2();
 	}
 	else {
-		cout << endl <<"Error expected a digit." << " " << token;
+		// << endl <<"Error expected a digit." << " " << token;
 		Error = true;
 	}
 }
 	
 void parse2(){
-	cout << "<parse> ";
+	// << "<parse> ";
 	GetToken2();
 	expression2();
 }
