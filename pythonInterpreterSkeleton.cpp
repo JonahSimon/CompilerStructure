@@ -5,6 +5,7 @@
 #include<regex>
 #include<vector>
 #include<map>
+#include"recDecPar.h"
 
 using namespace std;
 
@@ -78,7 +79,6 @@ public:
         if (pos == line.length()) return Token(EOL);
         smatch match;
         string remaining = line.substr(pos);
-
         while(regex_match(remaining, match, regex(" .*"))){
         pos++;
         remaining = line.substr(pos);
@@ -94,6 +94,13 @@ public:
         if(regex_match(remaining, match, regex("(=).*"))){
 			setType(ASSIGN);
             return Token(EQUALS, match[1]);}
+
+        // FIX THIS REGEX SO IT MATCHES SOME SHIT JACKSON IT IS HURTING MY BRAIN!! i dont care if its just 5+7
+        if(regex_match(remaining, match, regex("([0-9]+((\\+|-|\\*|/)[0-9]+)+)+.*"))){
+            cout << match[1] << endl;
+            parseNumber(match[1]);
+            return Token(EQUALS, match[1]);
+        }
             
         if(regex_match(remaining, match, regex("(\\+|-|or).*")))
             return Token(ADDITIVE_OP, match[1]);
@@ -211,7 +218,6 @@ public:
 	}
 		
 	void identifier (){
-        
 			token = statement.getToken();
 
             if (token.type == EQUALS){
@@ -237,7 +243,7 @@ public:
 	void close_paren (){
 		// TO DO FINISH THIS FUNCTION
             if (statement.getType() == PRINT){
-            cout << statement.getValue(tempToken.value)->second << endl;
+                cout << statement.getValue(tempToken.value)->second << endl;
             }
 
 		
@@ -316,7 +322,8 @@ int main(){
     vector<Statement> program;
     bool error = false;
 
-    parser.parse("ourstring = Hello");
+    parseNumber("5+7");
+    parser.parse("x = 5 + 7");
     // Read input
     /*
     for(unsigned int i=0; i < input.size() && !error; i++){
