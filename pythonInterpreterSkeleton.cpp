@@ -236,9 +236,6 @@ void loadTests(){
 int main(){
   Parser parser;
   Interpreter interpreter;
-  vector<string> input;
-  vector<Statement> program;
-  bool error = false;
 
   loadTests();
   for(int i = 0; i < testExpressions.size(); i++){
